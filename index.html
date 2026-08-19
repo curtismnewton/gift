@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Für Tanja & Marcel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0F1626;
+    --bg:#16213E;
+    --gold:#E8A33D;
+    --pepper:#B33F3F;
+    --cream:#F3ECDD;
+    --sage:#8FA998;
+    --slate:#94A0B8;
+    --line: rgba(243,236,221,0.16);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background: radial-gradient(1200px 800px at 50% -10%, #1c2a4d 0%, var(--bg) 45%, var(--bg-deep) 100%);
+    color:var(--cream);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding: 0 0 120px;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:0 24px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    text-align:center;
+    padding: 56px 24px 40px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:var(--gold);
+    margin-bottom:18px;
+  }
+  .photo-frame{
+    width:220px;height:220px;border-radius:50%;
+    margin:0 auto 28px;
+    border:3px solid var(--gold);
+    box-shadow: 0 0 0 8px rgba(232,163,61,0.08), 0 20px 60px rgba(0,0,0,0.4);
+    overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    background: linear-gradient(135deg,#2b3b63,#182238);
+  }
+  .photo-frame img{width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-frame .placeholder{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--slate);text-align:center;padding:12px;line-height:1.5;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(30px,6vw,44px);
+    line-height:1.15;
+    margin:0 0 16px;
+  }
+  h1 em{font-style:italic;color:var(--gold);}
+  .lede{
+    color:var(--slate);
+    font-size:16px;
+    line-height:1.7;
+    max-width:700px;
+    margin:0 auto;
+  }
+
+  /* ---------- ROUTE ---------- */
+  .route{
+    position:relative;
+    padding: 40px 0 0;
+  }
+  .road{
+    position:absolute;
+    left:27px; top:0; bottom:80px;
+    width:2px;
+    background-image: linear-gradient(var(--line) 60%, transparent 0%);
+    background-size: 2px 14px;
+    background-repeat: repeat-y;
+    z-index:0;
+  }
+  .road-lit{
+    position:absolute;
+    left:27px; top:0;
+    width:2px;
+    background-image: linear-gradient(var(--gold) 60%, transparent 0%);
+    background-size: 2px 14px;
+    background-repeat: repeat-y;
+    z-index:1;
+    height:0;
+    transition: height 900ms cubic-bezier(.4,0,.2,1);
+  }
+
+  .stop{
+    position:relative;
+    display:flex;
+    gap:20px;
+    padding-bottom:28px;
+    z-index:2;
+  }
+  .pin{
+    flex:none;
+    width:56px;height:56px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;
+    background:var(--bg-deep);
+    border:2px solid var(--line);
+    color:var(--slate);
+    transition: all .5s ease;
+  }
+  .stop.active .pin{
+    border-color:var(--gold);
+    color:var(--gold);
+    box-shadow:0 0 0 6px rgba(232,163,61,.12);
+  }
+  .stop.solved .pin{
+    border-color:var(--sage);
+    background:var(--sage);
+    color:var(--bg-deep);
+  }
+
+  .card{
+    flex:1;
+    background: rgba(255,255,255,0.03);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px 22px;
+    transition: all .4s ease;
+    overflow:hidden;
+  }
+  .stop.locked .card{ opacity:.4; }
+  .stop.solved .card{
+    padding:14px 22px;
+    background:transparent;
+    border-color:transparent;
+  }
+  .label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--slate);
+    margin-bottom:6px;
+  }
+  .stop.solved .label{color:var(--sage);}
+  .clue{
+    font-size:15.5px;
+    line-height:1.6;
+    margin:0 0 16px;
+  }
+  .stop.solved .clue, .stop.solved .answer-row{display:none;}
+  .stop.solved .solved-line{
+    display:block;
+    font-family:'Fraunces',serif;
+    font-size:16px;
+    font-style:italic;
+    color:var(--cream);
+  }
+  .solved-line{display:none;}
+
+  .answer-row{display:flex;gap:10px;flex-wrap:wrap;}
+  input[type=text]{
+    flex:1;
+    min-width:140px;
+    background:var(--bg-deep);
+    border:1px solid var(--line);
+    color:var(--cream);
+    font-family:'JetBrains Mono',monospace;
+    font-size:14px;
+    padding:11px 14px;
+    border-radius:9px;
+    outline:none;
+  }
+  input[type=text]:focus{border-color:var(--gold);}
+  button{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    letter-spacing:.03em;
+    border:none;
+    background:var(--gold);
+    color:var(--bg-deep);
+    padding:11px 18px;
+    border-radius:9px;
+    cursor:pointer;
+    font-weight:500;
+    transition:transform .15s ease, filter .15s ease;
+  }
+  button:hover{filter:brightness(1.08);}
+  button:active{transform:scale(.97);}
+  .hint-btn{
+    background:none;
+    color:var(--slate);
+    font-size:12px;
+    padding:6px 0;
+    text-decoration:underline;
+    text-underline-offset:3px;
+  }
+  .hint-text{
+    display:none;
+    font-size:13px;
+    color:var(--slate);
+    margin-top:10px;
+    font-style:italic;
+  }
+  .hint-text.show{display:block;}
+  .error-shake{animation: shake .4s ease;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-6px);}
+    75%{transform:translateX(6px);}
+  }
+
+  /* ---------- FINALE ---------- */
+  .finale{
+    text-align:center;
+    padding:60px 24px 0;
+    opacity:0;
+    transform:translateY(16px);
+    pointer-events:none;
+    transition: all .8s ease;
+  }
+  .finale.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+  .heart-burst{font-size:44px;margin-bottom:10px;}
+  .finale h2{
+    font-family:'Fraunces',serif;
+    font-size:clamp(26px,5vw,34px);
+    margin:0 0 14px;
+  }
+  .finale p{color:var(--slate);line-height:1.7;max-width:440px;margin:0 auto 28px;}
+  .send-btn{
+    font-size:15px;
+    padding:15px 30px;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background:var(--pepper);
+    color:var(--cream);
+    border-radius:12px;
+  }
+  .send-btn:hover{filter:brightness(1.1);}
+  .footnote{
+    margin-top:18px;
+    font-size:12px;
+    color:var(--slate);
+    opacity:.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">21. August 2026 · Schloss Eberstein</div>
+    <div class="photo-frame">
+      <img src="SchlossEberstein.jpg" alt="Hochzeitsschloss">
+    </div>
+    <h1>Liebe Tanja,<br>lieber <em>Marcel</em>.<br></h1>
+    <p class="lede">
+	<br><br>
+      Aus zwei Menschen, einem Hund und einem Jeep ist heute ein gemeinsamer Weg geworden.<br>
+      Das macht auch mich glücklich und ist ein wunderbarer Anlass für ein Geschenk.<br>
+	Bevor ihr euer Geschenk bekommt, müsst ihr allerdings noch einmal gemeinsam ein Stück Weg zurücklegen. <br><br> 
+	Fünf Stationen, fünf Erinnerungen.<br>
+      	Los geht's.
+    </p>
+  </div>
+
+  <div class="route">
+    <div class="road"></div>
+    <div class="road-lit" id="roadLit"></div>
+    <div id="stops"></div>
+  </div>
+
+  <div class="finale" id="finale">
+    <div class="heart-burst">❤️</div>
+    <h2><br>Bravo!<br><br>Gemeinsam habt ihr auch diesen ganzen Weg gefunden...</h2>
+    <p>
+so wie ihr beide den Weg zueinander gefunden habt.
+Euer Hochzeitsgeschenk wartet nicht in einem Umschlag, sondern kommt digital – sobald diese Nachricht unten bei mir ankommt.<br><br><b>
+Von Herzen: alles Liebe für euren gemeinsamen Weg</b>
+<br><br>
+Euer Dad
+    </p>
+    <a class="send-btn" id="mailBtn" href="#">✉️ Nachricht an Papa senden</a>
+  </div>
+
+</div>
+
+<script>
+// ---------------------------------------------------------------
+// Rätsel-Definition — hier kannst du Text & Antworten frei anpassen
+// ---------------------------------------------------------------
+const STAGES = [
+  {
+    icon: "🏠",
+    label: "Station 1",
+    clue: "Ihr habt euch ein gemeinsames gemütliches Nest gebaut. Wie nennt sich das drumherum?",
+    hint: "Denk an Remstal, nicht weit von Stuttgart entfernt.",
+    answers: ["waiblingen"],
+    solvedText: "Waiblingen – euer gemeinsames Zuhause. ✓"
+  },
+  {
+    icon: "🐾",
+    label: "Station 2",
+    clue: "Wer von euch bekommt wahrscheinlich die meisten Kuscheleinheiten?",
+    hint: "Scharf, aber nur dem Namen nach.",
+    answers: ["pepper"],
+    solvedText: "Pepper – der eigentliche Chef im Haus. ✓"
+  },
+  {
+    icon: "🚙",
+    label: "Station 3",
+    clue: "Ob Wocheneinkauf, Ausflug mit Pepper oder spontaner Kurztrip. Mit was macht ihr das?",
+    hint: "Amerikanischer Offroad-Klassiker, vier Buchstaben.",
+    answers: ["jeep"],
+    solvedText: "Jeep – euer treuer Begleiter auf allen Wegen. ✓"
+  },
+  {
+    icon: "✂️",
+    label: "Station 4",
+    clue: "Wo sorgt Tanja jeden Tag für die gute Laune vieler Menschen. Kurz und knapp.",
+    hint: "Mit Tier-Friseur hat das wenig zu tun.",
+    answers: ["ghd"],
+    solvedText: "GHD – Good Hair Day, jeden Tag. ✓"
+  },
+  {
+    icon: "❤️",
+    label: "Station 5",
+    clue: "Welcher gemeinsame Tag war bis jetzt für euch der wichtigste?",
+    hint: "Geburtstag habt ihr ja nicht am gleichen Tag.",
+    answers: ["21.08.26", "21.08.2026", "210826", "21082026"],
+    solvedText: "21.08.2026 – der Tag, an dem alles zusammenkommt. ✓"
+  }
+];
+
+const stopsEl = document.getElementById('stops');
+const roadLit = document.getElementById('roadLit');
+let solvedCount = 0;
+
+function normalize(str){
+  return str.trim().toLowerCase().replace(/\s+/g,'');
+}
+
+STAGES.forEach((stage, i) => {
+  const stopEl = document.createElement('div');
+  stopEl.className = 'stop ' + (i === 0 ? 'active' : 'locked');
+  stopEl.id = 'stop-' + i;
+  stopEl.innerHTML = `
+    <div class="pin">${stage.icon}</div>
+    <div class="card">
+      <div class="label">${stage.label}</div>
+      <p class="clue">${stage.clue}</p>
+      <div class="solved-line">${stage.solvedText}</div>
+      <div class="answer-row">
+        <input type="text" placeholder="Eure Antwort …" id="input-${i}">
+        <button onclick="checkAnswer(${i})">Prüfen</button>
+      </div>
+      <button class="hint-btn" onclick="toggleHint(${i})">Tipp anzeigen</button>
+      <div class="hint-text" id="hint-${i}">${stage.hint}</div>
+    </div>
+  `;
+  stopsEl.appendChild(stopEl);
+
+  const input = stopEl.querySelector('input');
+  input.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') checkAnswer(i);
+  });
+});
+
+function toggleHint(i){
+  document.getElementById('hint-' + i).classList.toggle('show');
+}
+
+function checkAnswer(i){
+  const stopEl = document.getElementById('stop-' + i);
+  if(!stopEl.classList.contains('active')) return;
+  const input = document.getElementById('input-' + i);
+  const val = normalize(input.value);
+  const correct = STAGES[i].answers.some(a => normalize(a) === val);
+
+  if(correct){
+    stopEl.classList.remove('active');
+    stopEl.classList.add('solved');
+    solvedCount++;
+    updateRoad();
+
+    const next = document.getElementById('stop-' + (i+1));
+    if(next){
+      next.classList.remove('locked');
+      next.classList.add('active');
+      setTimeout(() => next.scrollIntoView({behavior:'smooth', block:'center'}), 350);
+    } else {
+      showFinale();
+    }
+  } else {
+    input.classList.add('error-shake');
+    setTimeout(()=> input.classList.remove('error-shake'), 400);
+  }
+}
+
+function updateRoad(){
+  const total = STAGES.length;
+  const pct = (solvedCount / total) * 100;
+  roadLit.style.height = pct + '%';
+}
+
+function showFinale(){
+  const finale = document.getElementById('finale');
+  setTimeout(() => {
+    finale.classList.add('show');
+    finale.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 500);
+}
+
+// Mailto-Link mit vorausgefüllter Nachricht
+const subject = encodeURIComponent("Rätsel gelöst! 🎉 Wir sind bereit, Papa!");
+const body = encodeURIComponent(
+`Hallo Papa,
+
+wir haben alle 5 Stationen gemeistert – Waiblingen, Pepper, Jeep, GHD und unser großer Tag.
+Wir sind bereit für unser Hochzeitsgeschenk!
+
+Ganz viel Liebe,
+Tanja & Marcel`
+);
+document.getElementById('mailBtn').href =
+  `mailto:hochzeitsgeschenk@fakeless.app?subject=${subject}&body=${body}`;
+</script>
+
+</body>
+</html>
